@@ -1,0 +1,195 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Bersimport — калькулятор авто 2026</title>
+<style>
+:root{font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Arial,sans-serif;color:#192622;background:#f3f5f2}*{box-sizing:border-box}body{margin:0;padding:24px 12px}.container{max-width:790px;margin:auto;background:#fff;border-radius:19px;padding:28px;box-shadow:0 6px 24px #142d2412}h1{margin:0;font-size:27px}h2{font-size:19px;margin:29px 0 18px;padding-bottom:10px;border-bottom:1px solid #e8ece9}.sub{color:#64736d;font-size:14px;line-height:1.5;margin:10px 0 24px}.form-group{margin:0 0 16px}label{display:block;font-size:14px;font-weight:600;margin:0 0 7px}input,select{display:block;width:100%;font:inherit;font-size:16px;color:#142822;padding:12px 13px;border:1px solid #cbd5cf;border-radius:9px;background:#fff;outline:none}input:focus,select:focus{border-color:#266c4b;box-shadow:0 0 0 3px #266c4b18}input[readonly]{background:#f2f5f2}a{color:#286249}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 16px}.note{background:#f1f6f2;border-left:3px solid #3b8060;padding:11px 14px;color:#52665a;border-radius:6px;font-size:13px;line-height:1.5;margin:12px 0 23px}.hidden{display:none!important}.btn{width:100%;border:0;border-radius:9px;background:#174f35;color:#fff;font:inherit;font-weight:650;cursor:pointer;padding:15px}.btn:hover{background:#123e2b}.btn.secondary{background:#e7eee8;color:#194d35}.result{border:1px solid #d6e2d9;border-radius:13px;padding:20px;margin-top:22px}.result p{margin:9px 0;white-space:pre-wrap}.total{font-size:20px;font-weight:700;padding-top:9px;border-top:1px solid #dee8df}.status{margin:10px 0;font-size:14px;color:#b14830}.small{font-size:12px;color:#67786d}#utilizationParams{padding:16px 16px 4px;background:#fbfcfb;border:1px solid #e1e9e2;border-radius:12px}#utilFeeRub{font-size:20px;font-weight:700;color:#194f34}@media(max-width:540px){body{padding:10px}.container{padding:18px 16px}.grid{grid-template-columns:1fr}h1{font-size:22px}}
+</style>
+</head>
+<body>
+<div class="container">
+<h1>Калькулятор стоимости автомобиля</h1>
+<p class="sub">Bersimport · Временная версия · Утильсбор по предоставленной таблице с 01.01.2026</p>
+<p class="note">Курсы валют в этой временной версии вводятся вручную. Два PHP-API исходного сайта здесь недоступны. В расчёте сохранены стояночные, брокерские, логистика, растаможка и наценка.</p>
+
+<h2>Автомобиль и курсы</h2>
+<div class="form-group"><label for="carName">Название автомобиля</label><input id="carName" type="text" placeholder="Например, BMW X5 30d"></div>
+<div class="grid">
+<div class="form-group"><label for="usdToWon">Курс USDT → WON</label><input id="usdToWon" type="number" step="any" min="0" placeholder="Введите курс"></div>
+<div class="form-group"><label for="usdToRub">Курс USDT → RUB</label><input id="usdToRub" type="number" step="any" min="0" placeholder="Введите курс"></div>
+<div class="form-group"><label for="eurToRub">Курс EUR → RUB</label><input id="eurToRub" type="number" step="any" min="0" placeholder="Введите курс"></div>
+<div class="form-group"><label for="carPriceWon">Стоимость автомобиля (WON)</label><input id="carPriceWon" type="number" step="1" min="0" placeholder="Цена в вонах"></div>
+<div class="form-group"><label for="parkingFeeWon">Стояночные (WON)</label><input id="parkingFeeWon" type="number" value="440000" readonly></div>
+<div class="form-group"><label for="brokerageFee">Брокерские (RUB)</label><input id="brokerageFee" type="number" value="110000" readonly></div>
+</div>
+
+<h2>Логистика и таможня</h2>
+<div class="form-group"><label for="logisticsRussia">Логистика до таможни</label>
+<select id="logisticsRussia"><option value="0">Не выбрана</option><option value="1050">До Владивостока ($1 050)</option><option value="3500">До Бишкека в контейнере ($3 500)</option></select></div>
+<div class="form-group"><label for="internalLogistics">Логистика внутри страны</label>
+<select id="internalLogistics"><option value="0">Не выбрана</option><option value="285000">Владивосток — Москва (285 000 ₽)</option><option value="320000">Владивосток — Грозный (320 000 ₽)</option><option value="150000">Бишкек — Грозный (150 000 ₽)</option></select></div>
+<div class="form-group"><label for="customs">Страна растаможки</label><select id="customs"><option value="">Не выбрана</option><option value="russia">Россия</option><option value="belarus">Беларусь</option><option value="kyrgyzstan">Киргизия</option></select></div>
+<div id="russiaCustomsFee" class="form-group hidden"><label for="customsRub">Растаможка (RUB)</label><input type="number" id="customsRub" step="any" min="0"></div>
+<div id="belarusCustomsFee" class="hidden"><div class="form-group"><label for="customsEuro">Растаможка (EUR)</label><input type="number" id="customsEuro" step="any" min="0"></div><div class="form-group"><label for="minskLogistics">Логистика до Минска и обратно</label><select id="minskLogistics"><option value="0">Сам доставлю</option><option value="700">$700</option></select></div></div>
+<div id="kyrgyzstanCustomsFee" class="form-group hidden"><label for="customsEuroKyrgyzstan">Растаможка (EUR)</label><input type="number" id="customsEuroKyrgyzstan" step="any" min="0"></div>
+
+<div id="utilizationSection" class="hidden">
+<h2>Утилизационный сбор · 2026</h2>
+<div id="utilizationParams">
+<div class="form-group"><label for="engineVolume">Объём / тип двигателя</label><select id="engineVolume">
+<option value="">Не выбран</option><option value="electro">Электрички и последовательные гибриды</option><option value="1.0-2.0">От 1.0 до 2.0 л</option><option value="2.0-3.0">От 2.0 до 3.0 л</option><option value="3.0-3.5">От 3.0 до 3.5 л</option><option value="3.5+">От 3.5 л и выше</option></select></div>
+<div class="grid">
+<div class="form-group"><label for="powerHp">Мощность (л.с.)</label><input type="number" id="powerHp" min="0" step="any" placeholder="Например 150"></div>
+<div class="form-group"><label for="powerKw">Мощность (кВт)</label><input type="number" id="powerKw" min="0" step="any" placeholder="Например 100"></div>
+<div class="form-group"><label for="powerKwToHp">кВт → л.с. (×1,35962)</label><input id="powerKwToHp" type="text" readonly></div>
+<div class="form-group"><label for="powerTotalHp">Итого л.с. (сумма)</label><input id="powerTotalHp" type="text" readonly></div>
+</div>
+<div class="form-group"><label for="utilizationType">Тип утиля</label><select id="utilizationType"><option value="personal">Для личного пользования</option><option value="legal">Для юридических лиц</option></select></div>
+<div class="form-group"><label for="carAge">Возраст автомобиля</label><select id="carAge"><option value="">Не выбран</option><option value="under3">От 0 до 3 лет</option><option value="over3">От 3 до 5 лет</option></select></div>
+<p id="legalWarning" class="small hidden">Для двигателей свыше 3,0 л автоматически используется тип «Для юридических лиц».</p>
+<div class="form-group"><label for="utilFeeRub">Утилизационный сбор (RUB)</label><input type="text" id="utilFeeRub" readonly></div>
+</div>
+</div>
+<div class="form-group" style="margin-top:22px"><label for="markup">Наценка (RUB)</label><input type="number" id="markup" step="1" value="0"></div>
+<button type="button" class="btn" id="calculateBtn">Рассчитать</button>
+<p class="status" id="error" role="alert"></p>
+<div id="result" class="result hidden">
+<h2 style="margin-top:0">Результаты расчёта</h2>
+<p id="carNameResult"></p><p id="priceToKorea"></p><p id="logisticsRussiaRub"></p><p id="customsCountry"></p><p id="customsResult"></p><p id="utilFeeRubResult"></p><p id="internalLogisticsRub"></p><p id="brokerageFeeResult"></p><p id="totalRub" class="total"></p><p id="totalUsdt"></p>
+<button type="button" class="btn secondary" id="copyBtn">Копировать результат</button>
+<p id="copied" class="small"></p>
+</div>
+</div>
+<script>
+"use strict";
+const $=id=>document.getElementById(id);
+const KW_TO_HP=1.35962;
+const money=n=>Math.round(n).toLocaleString("ru-RU")+" ₽";
+const num=id=>{const s=$(id).value.trim().replace(",",".");return s===""?NaN:Number(s)};
+const nz=id=>Number.isFinite(num(id))?num(id):0;
+
+// Фиксированные таблицы пользователя: [0-3 года, 3-5 лет], по возрастанию мощности.
+const FEE_TABLE={
+ electro:[
+ [800800,1408800],[991200,1641600],[1317600,1912800],
+ [1560000,2227200],[1848000,2594400],[2193600,3024000],
+ [2599200,3523200],[3079200,4104000],[3648000,4780800]],
+ "1.0-2.0":[
+ [800800,1408800],[900000,1492800],[952800,1584000],
+ [1010400,1677600],[1142400,1838400],[1291200,2011200],
+ [1459200,2203200],[1663200,2412000],[1896000,2640000],
+ [2160000,2892000],[2464800,3168000],[2808000,3468000],[3201600,3796800]],
+ "2.0-3.0":[
+ [2250400,3407200],[2306800,3456000],[2364000,3501600],
+ [2402400,3552000],[2520000,3660000],[2620800,3770400],
+ [2726400,3873600],[2834400,3981600],[2949600,4094400],
+ [3067200,4209600],[3189600,4327200],[3316800,4447200],[3448800,4572000]],
+ "3.0-3.5":[
+ [2584000,3956200],[2635200,4000800],[2688000,4044000],
+ [2743200,4087200],[2810400,4144800],[2880000,4248000],
+ [3038400,4356000],[3206400,4485600],[3384000,4620000],
+ [3568800,4759200],[3765600,4900800],[3972000,5049600],[4190400,5200800]],
+ "3.5+":[
+ [3290600,4325800],[3345600,4389600],[3403200,4456800],
+ [3460800,4524000],[3530400,4627200],[3600000,4732800],
+ [3727200,4992000],[3857600,5268000],[3993600,5558400],
+ [4132800,5863200],[4276800,6187200],[4425600,6528000],[4581600,6885600]]
+};
+const ICE_LIMITS=[160,190,220,250,280,310,340,370,400,430,460,500];
+const ELEC_LIMITS=[80,100,130,160,190,220,250,280];
+
+function computePowerAndUpdateUI(){
+ const hp=num("powerHp"),kw=num("powerKw");
+ const hasHp=Number.isFinite(hp)&&hp>=0,hasKw=Number.isFinite(kw)&&kw>=0;
+ const kwHp=(hasKw?kw:0)*KW_TO_HP,total=(hasHp?hp:0)+kwHp;
+ $("powerKwToHp").value=hasKw?kwHp.toFixed(2):"";
+ $("powerTotalHp").value=(hasHp||hasKw)?total.toFixed(2):"";
+ return (hasHp||hasKw)&&total>0?total:NaN;
+}
+function enforceTypeByVolume(){
+ const forced=["3.0-3.5","3.5+"].includes($("engineVolume").value);
+ const opt=$("utilizationType").querySelector('[value="personal"]');
+ opt.disabled=forced;
+ if(forced)$("utilizationType").value="legal";
+ $("legalWarning").classList.toggle("hidden",!forced);
+}
+function bracket(volume,hp){
+ const limits=volume==="electro"?ELEC_LIMITS:ICE_LIMITS;
+ // «от 280» для электро: 280 включается в последний диапазон.
+ if(volume==="electro"&&hp>=280)return 8;
+ for(let i=0;i<limits.length;i++)if(hp<=limits[i])return i;
+ return limits.length;
+}
+function calculateUtilizationFee(){
+ const total=computePowerAndUpdateUI();
+ enforceTypeByVolume();
+ const vol=$("engineVolume").value,age=$("carAge").value,typ=$("utilizationType").value;
+ if(!vol||!age){$("utilFeeRub").value="";return NaN}
+ if(!Number.isFinite(total)){$("utilFeeRub").value="Введите мощность";return NaN}
+ let fee=FEE_TABLE[vol][bracket(vol,total)][age==="under3"?0:1];
+ if(typ==="personal"&&(vol==="electro"||vol==="1.0-2.0"||vol==="2.0-3.0")){
+  if(bracket(vol,total)===0)fee=age==="under3"?3400:5200;
+ }
+ $("utilFeeRub").value=String(fee);
+ return fee;
+}
+function toggleCustomsFields(){
+ const v=$("customs").value;
+ for(const [id,sel] of [["russiaCustomsFee","russia"],["belarusCustomsFee","belarus"],["kyrgyzstanCustomsFee","kyrgyzstan"]]){
+  $(id).classList.toggle("hidden",v!==sel);
+ }
+ $("utilizationSection").classList.toggle("hidden",v!=="belarus"&&v!=="kyrgyzstan");
+ calculateUtilizationFee();
+}
+function calculate(){
+ $("error").textContent="";
+ const usdRub=num("usdToRub"),usdWon=num("usdToWon"),eurRub=num("eurToRub"),car=num("carPriceWon"),country=$("customs").value;
+ if(!Number.isFinite(usdRub)||usdRub<=0||!Number.isFinite(usdWon)||usdWon<=0||!Number.isFinite(car)||car<=0){
+  $("error").textContent="Введите корректные курсы USDT→WON, USDT→RUB и цену автомобиля.";return;
+ }
+ if(!country){$("error").textContent="Выберите страну растаможки.";return}
+ if(country!=="russia"&&(!Number.isFinite(eurRub)||eurRub<=0)){
+  $("error").textContent="Для этой страны нужен курс EUR→RUB.";return;
+ }
+ const util=country==="russia"?0:calculateUtilizationFee();
+ if(country!=="russia"&&!Number.isFinite(util)){
+  $("error").textContent="Заполните параметры утильсбора, включая объём, возраст и мощность.";return;
+ }
+ const carWon=car*1.02+440000;
+ const carRub=carWon/usdWon*usdRub;
+ const logRub=nz("logisticsRussia")*usdRub,inner=nz("internalLogistics"),broker=nz("brokerageFee"),markup=nz("markup");
+ let customsRub=0,minsk=0;
+ if(country==="russia")customsRub=nz("customsRub");
+ if(country==="belarus"){customsRub=nz("customsEuro")*eurRub;minsk=nz("minskLogistics")*usdRub}
+ if(country==="kyrgyzstan")customsRub=nz("customsEuroKyrgyzstan")*eurRub;
+ const total=carRub+logRub+inner+broker+markup+customsRub+minsk+util;
+ $("carNameResult").textContent=$("carName").value;
+ $("priceToKorea").textContent="Цена в Корее: "+money(carRub+markup);
+ $("logisticsRussiaRub").textContent="Логистика до таможни: "+money(logRub);
+ $("customsCountry").textContent="Страна таможни: "+({"russia":"Россия","belarus":"Беларусь","kyrgyzstan":"Киргизия"}[country]);
+ $("customsResult").textContent="Растаможка"+(country==="belarus"?" и доставка через Минск":"")+": "+money(customsRub+minsk);
+ $("utilFeeRubResult").textContent=country==="russia"?"":"Утилизационный сбор: "+money(util);
+ $("internalLogisticsRub").textContent="Логистика: "+money(inner);
+ $("brokerageFeeResult").textContent="Брокерские: "+money(broker);
+ $("totalRub").textContent="Под ключ (RUB): "+money(total);
+ $("totalUsdt").textContent="Под ключ (USDT): "+Math.round(total/usdRub).toLocaleString("ru-RU")+" USDT";
+ $("result").classList.remove("hidden");
+}
+async function copyResults(){
+ const ids=["carNameResult","priceToKorea","logisticsRussiaRub","customsCountry","customsResult","utilFeeRubResult","internalLogisticsRub","brokerageFeeResult","totalRub","totalUsdt"];
+ const str=ids.map(id=>$(id).textContent).filter(Boolean).join("\n");
+ try{await navigator.clipboard.writeText(str);$("copied").textContent="Результат скопирован."}
+ catch(e){$("copied").textContent="Копирование недоступно в браузере — выделите строки вручную."}
+}
+document.addEventListener("DOMContentLoaded",()=>{
+ $("customs").addEventListener("change",toggleCustomsFields);
+ for(const id of ["engineVolume","utilizationType","carAge"])$(id).addEventListener("change",calculateUtilizationFee);
+ for(const id of ["powerHp","powerKw"])$(id).addEventListener("input",calculateUtilizationFee);
+ $("calculateBtn").addEventListener("click",calculate);
+ $("copyBtn").addEventListener("click",copyResults);
+ toggleCustomsFields();
+});
+</script>
+</body></html>
