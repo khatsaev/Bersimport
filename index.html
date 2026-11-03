@@ -19,8 +19,8 @@
 <div class="form-group"><label for="carName">Название автомобиля</label><input id="carName" type="text" placeholder="Например, BMW X5 30d"></div>
 <div class="grid">
 <div class="form-group"><label for="usdToWon">Курс USDT → WON</label><input id="usdToWon" type="number" step="any" min="0" placeholder="Введите курс"></div>
-<div class="form-group"><label for="usdToRub">Курс USDT → RUB</label><input id="usdToRub" type="number" step="any" min="0" placeholder="Введите курс"></div>
-<div class="form-group"><label for="eurToRub">Курс EUR → RUB</label><input id="eurToRub" type="number" step="any" min="0" placeholder="Введите курс"></div>
+<div class="form-group"><label for="usdToRub">Курс USDT → RUB (+4 ₽)</label><input id="usdToRub" type="number" step="any" min="0" placeholder="Введите курс"></div>
+<div class="form-group"><label for="eurToRub">Курс EUR → RUB (+1,5 ₽)</label><input id="eurToRub" type="number" step="any" min="0" placeholder="Введите курс"></div>
 <div class="form-group"><label for="carPriceWon">Стоимость автомобиля (WON)</label><input id="carPriceWon" type="number" step="1" min="0" placeholder="Цена в вонах"></div>
 <div class="form-group"><label for="parkingFeeWon">Стояночные (WON)</label><input id="parkingFeeWon" type="number" value="0" min="0" step="1"></div>
 <div class="form-group"><label for="brokerageFee">Брокерские (RUB)</label><input id="brokerageFee" type="number" value="0" min="0" step="1"></div>
@@ -234,6 +234,8 @@ async function fetchEurRate(){
   return {rate,source:"Frankfurter"};
  }
 }
+const USDT_RUB_SURCHARGE = 4;
+const EUR_RUB_SURCHARGE = 1.5;
 let isLoadingRates=false;
 async function loadRates(){
  if(isLoadingRates)return;
@@ -248,21 +250,21 @@ async function loadRates(){
  let rub=rubResult.status==="fulfilled"?rubResult.value:null;
  const sources=[];
  if(won)sources.push("USDT→WON: Bersimport");
- if(rub)sources.push("USDT→RUB: Bersimport");
+ if(rub)sources.push("USDT→RUB: Bersimport +4 ₽");
  if(!won||!rub){
    let market=null;
    try{market=await fetchMarketUsdtRates()}
    catch(e){try{market=await fetchAlternateUsdtRates()}catch(e2){console.warn("Резервные курсы USDT недоступны",e,e2)}}
    if(market){
      if(!won){won=market.krw;sources.push("USDT→WON: "+market.source)}
-     if(!rub){rub=market.rub;sources.push("USDT→RUB: "+market.source)}
+     if(!rub){rub=market.rub;sources.push("USDT→RUB: "+market.source+" +4 ₽")}
    }
  }
  if(won)$("usdToWon").value=won.toFixed(2);
- if(rub)$("usdToRub").value=rub.toFixed(2);
+ if(rub)$("usdToRub").value=(rub+USDT_RUB_SURCHARGE).toFixed(2);
  if(eurResult.status==="fulfilled"){
-   $("eurToRub").value=eurResult.value.rate.toFixed(2);
-   sources.push("EUR→RUB: "+eurResult.value.source);
+   $("eurToRub").value=(eurResult.value.rate+EUR_RUB_SURCHARGE).toFixed(2);
+   sources.push("EUR→RUB: "+eurResult.value.source+" +1,5 ₽");
  }
  const missing=[];
  if(!won)missing.push("USDT→WON");
